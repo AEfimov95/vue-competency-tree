@@ -128,4 +128,4 @@ You can customize the component styles by setting the CSS variables in your glob
 
 ## Demo
 
-Check out the live demo [here](https://codesandbox.io/p/devbox/vue-competency-tree-nvdfms/).
+Check out the live demo [here](https://codesandbox.io/p/devbox/vue-competency-tree-flc57n).
