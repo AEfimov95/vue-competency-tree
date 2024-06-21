@@ -1,6 +1,6 @@
 {
   "name": "vue-competency-tree",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "private": false,
   "description": "A Vue 3 component for displaying a competency tree with nested checkboxes and search functionality.",
   "main": "./dist/vue-competency-tree.umd.cjs",
@@ -26,6 +26,7 @@
     "type": "git",
     "url": "git+https://github.com/AEfimov95/vue-competency-tree.git"
   },
+  "homepage": "https://www.npmjs.com/package/vue-competency-tree",
   "keywords": [
     "vue",
     "vue3",
