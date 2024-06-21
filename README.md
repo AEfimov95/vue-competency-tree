@@ -1,3 +1,6 @@
+[![NPM Version](https://img.shields.io/npm/v/vue-competency-tree.svg)](https://www.npmjs.com/package/vue-competency-tree)
+
+
 # Vue Competency Tree
 
 A Vue 3 component for displaying a competency tree with nested checkboxes and search functionality.
