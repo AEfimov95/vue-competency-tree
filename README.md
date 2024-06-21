@@ -63,7 +63,7 @@ export default {
       treeData: [
         // your tree data here
       ],
-      selectedLevels: [],
+      selectedIds: [],
     };
   },
 };
