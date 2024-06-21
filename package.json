@@ -21,11 +21,18 @@
     "dev": "vite",
     "serve": "vite preview"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AEfimov95/vue-competency-tree.git"
+  },
   "keywords": [
     "vue",
     "vue3",
     "component",
-    "library"
+    "library",
+    "tree",
+    "vue-tree",
+    "typescript"
   ],
   "author": "AEfimov95",
   "peerDependencies": {
