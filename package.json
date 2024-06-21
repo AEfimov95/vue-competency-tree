@@ -1,0 +1,43 @@
+{
+  "name": "vue-competency-tree",
+  "version": "0.0.1",
+  "private": false,
+  "description": "A Vue 3 component for displaying a competency tree with nested checkboxes and search functionality.",
+  "main": "./dist/vue-competency-tree.umd.cjs",
+  "module": "./dist/vue-competency-tree.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/vue-competency-tree.js",
+      "require": "./dist/vue-competency-tree.umd.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "serve": "vite preview"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "component",
+    "library"
+  ],
+  "author": "AEfimov95",
+  "peerDependencies": {
+    "vue": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.2",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "typescript": "^5.2.2",
+    "vite": "^5.2.0",
+    "vite-plugin-dts": "^3.9.1",
+    "vue": "^3.0.0",
+    "vue-tsc": "^2.0.6"
+  }
+}
