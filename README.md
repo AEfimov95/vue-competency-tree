@@ -129,4 +129,4 @@ You can customize the component styles by setting the CSS variables in your glob
 
 ## Demo
 
-Check out the live demo [here](https://stackblitz.com/edit/vitejs-vite-d1m6z7).
+Check out the live demo [here](https://stackblitz.com/edit/vue-competency-tree).

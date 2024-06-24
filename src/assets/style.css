@@ -145,6 +145,8 @@
     transition: transform 0.2s;
     cursor: pointer;
     user-select: none;
+    min-width: fit-content;
+    min-height: fit-content;
   }
   
   .competency-tree__chevron--rotated {
