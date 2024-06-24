@@ -32,7 +32,7 @@ First, you need to register the component globally in your main entry file (e.g.
 import { createApp } from "vue";
 import App from "./App.vue";
 import setupCompetencyTree from "vue-competency-tree";
-import "vue-competency-tree/dist/style.css";
+import 'vue-competency-tree/style.css'
 const app = createApp(App);
 
 app.use(setupCompetencyTree);
