@@ -1,9 +1,8 @@
-import { getAllIds } from "./getAllIds";
-
 export interface OrganisationStructureResource {
   id?: number | null;
   name: string;
   children?: OrganisationStructureResource[] | null;
 }
 
-export { getAllIds };
+export { getAllIds } from "./getAllIds";
+export { filterByName } from "./filterByName";

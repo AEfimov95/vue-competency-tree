@@ -1,6 +1,5 @@
 [![NPM Version](https://img.shields.io/npm/v/vue-competency-tree.svg)](https://www.npmjs.com/package/vue-competency-tree)
 
-
 # Vue Competency Tree
 
 A Vue 3 component for displaying a competency tree with nested checkboxes and search functionality.
@@ -33,7 +32,7 @@ First, you need to register the component globally in your main entry file (e.g.
 import { createApp } from "vue";
 import App from "./App.vue";
 import setupCompetencyTree from "vue-competency-tree";
-
+import "vue-competency-tree/dist/style.css";
 const app = createApp(App);
 
 app.use(setupCompetencyTree);
@@ -106,13 +105,13 @@ interface OrganisationStructureResource {
 
 The component provides the following CSS variables for easy customization of its appearance:
 
-| Variable Name             | Default Value                           | Description                               |
-| ------------------------- | --------------------------------------- | ----------------------------------------- |
-| `--tree-checkbox-checked` | `#27ae60`                               | Color of the checked checkbox.            |
-| `--tree-border`           | `#ebeff5`                               | Border color.             |
-| `--tree-background`       | `#fff`                                  | Background color.         |
-| `--tree-disabled`         | `#7e899a`                               | Color used when the dropdown is disabled. |
-| `--tree-menu-shadow`      | `0px 0px 8px 0px rgba(45, 50, 57, 0.1)` | Box shadow for the dropdown menu.         |
+| Variable Name           | Default Value                           | Description                               |
+| ----------------------- | --------------------------------------- | ----------------------------------------- |
+| `--ct-checkbox-checked` | `#27ae60`                               | Color of the checked checkbox.            |
+| `--ct-border`           | `#ebeff5`                               | Border color.                             |
+| `--ct-background`       | `#fff`                                  | Background color.                         |
+| `--ct-disabled`         | `#7e899a`                               | Color used when the dropdown is disabled. |
+| `--ct-menu-shadow`      | `0px 0px 8px 0px rgba(45, 50, 57, 0.1)` | Box shadow for the dropdown menu.         |
 
 ### Example of Customizing Styles
 
@@ -120,11 +119,11 @@ You can customize the component styles by setting the CSS variables in your glob
 
 ```css
 :root {
-  --tree-checkbox-checked: #ff6347;
-  --tree-border: #ccc;
-  --tree-background: #f9f9f9;
-  --tree-disabled: #d3d3d3;
-  --tree-menu-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+  --ct-checkbox-checked: #ff6347;
+  --ct-border: #ccc;
+  --ct-background: #f9f9f9;
+  --ct-disabled: #d3d3d3;
+  --ct-menu-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
 }
 ```
 

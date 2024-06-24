@@ -45,17 +45,15 @@
 import { computed, reactive, ref, watch, watchEffect } from "vue";
 import { MiniChevronRightIcon } from "../components/icons";
 import TheCheckbox from "./TheCheckbox.vue";
-import { useGlobalStore } from "../store/globalStore";
 import { type OrganisationStructureResource, getAllIds } from "../utils";
-
+import { inject } from 'vue'
+import type {FilterContext } from "./CompetencyTree.vue";
 const props = defineProps<{
   data: OrganisationStructureResource;
   inputSearch?: string;
 }>();
 
-const { levelsFilter, updateLevelFilter, updateLevelFilterAll } =
-  useGlobalStore();
-
+const { levelsFilter, updateLevelFilter, updateLevelFilterAll } = inject<FilterContext>('levelsfilter')!
 const state = reactive<{
   data: OrganisationStructureResource;
   allFilter: boolean;
@@ -91,7 +89,7 @@ const isIndeterminate = computed<boolean>(() => {
     if (
       includesId.value.filter((el) => levelsFilter.value.includes(el)).length <
         includesId.value.length &&
-      includesId.value.filter((el) => levelsFilter.value.includes(el)).length
+        includesId.value.some((el) => levelsFilter.value.includes(el))
     )
       return true;
   }
@@ -134,8 +132,7 @@ watch(
 watchEffect(() => {
   if (props.data.children) {
     state.allFilter =
-      includesId.value.filter((el) => levelsFilter.value.includes(el)).length >
-      0;
+    includesId.value.some((el) => levelsFilter.value.includes(el));
     if (props.inputSearch) {
       isShowOptions.value = openByInputSearch(props.data.children).some(
         (el) => el == true
@@ -144,46 +141,3 @@ watchEffect(() => {
   }
 });
 </script>
-<style>
-.competency-tree__node {
-  display: flex;
-  flex-direction: column;
-}
-
-.competency-tree__node-header {
-  display: flex;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  align-items: center;
-}
-
-.competency-tree__chevron {
-  transform: rotate(0deg);
-  transition: transform 0.2s;
-  cursor: pointer;
-  user-select: none;
-}
-
-.competency-tree__chevron--rotated {
-  transform: rotate(90deg);
-}
-
-.competency-tree__node-children {
-  display: grid;
-  padding-left: 0.5rem;
-}
-
-.competency-tree__child {
-  order: 2;
-}
-
-.competency-tree__child--leaf {
-  order: 1;
-}
-
-.competency-tree__leaf-checkbox {
-  padding-left: 2.5rem;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-}
-</style>

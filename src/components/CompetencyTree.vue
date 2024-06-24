@@ -6,7 +6,7 @@
     @click="openInput"
   >
     <div
-      v-if="!isShowElements"
+      v-if="!hasElements"
       class="competency-tree__text"
       :class="{ 'competency-tree__text--disabled': isDisabled }"
     >
@@ -16,28 +16,19 @@
           : props.allLevelsPlaceholder
       }}
     </div>
-    <input
+    <TheInput
       v-else
-      :placeholder="props.searchInputPlaceholder"
-      class="competency-tree__input"
-      :class="{ 'competency-tree__input--disabled': isDisabled }"
-      v-model="inputValue"
       :disabled="isDisabled"
-      ref="inputRef"
+      :placeholder="searchInputPlaceholder"
+      v-model="inputValue"
     />
-    <CloseIcon
-      v-if="!isDisabled && inputValue"
+    <Component
       @click="clearInput"
-      class="competency-tree__icon"
-    />
-    <SearchIcon v-else-if="isShowElements" />
-    <ChevronIcon
-      v-else
-      class="competency-tree__icon"
+      :is="currentIcon"
       :class="{ 'competency-tree__icon--disabled': isDisabled }"
     />
     <div
-      v-show="isShowElements"
+      v-show="hasElements"
       class="competency-tree__menu"
       :style="`max-height:${props.maxHeight}`"
     >
@@ -50,7 +41,7 @@
           @update:model-value="selectAll"
         />
         <TreeNode
-          v-for="(item, id) in tempData"
+          v-for="(item, id) in TreeElements"
           :key="id"
           :data="item"
           :input-search="inputValue"
@@ -64,13 +55,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, watchEffect } from "vue";
+import { computed, type Ref, ref, watch, watchEffect } from "vue";
 import TreeNode from "./TreeNode.vue";
 import TheCheckbox from "./TheCheckbox.vue";
-import { useGlobalStore } from "../store/globalStore";
 import { SearchIcon, CloseIcon, ChevronIcon } from "./icons";
-import { type OrganisationStructureResource, getAllIds } from "../utils";
-
+import { type OrganisationStructureResource, getAllIds, filterByName } from "../utils";
+import { provide } from "vue";
+import TheInput from "./TheInput.vue";
 export interface Props {
   isDisabled?: boolean;
   treeData?: OrganisationStructureResource[];
@@ -81,7 +72,11 @@ export interface Props {
   maxHeight?: string;
   modelValue?: number[];
 }
-
+export interface FilterContext {
+  levelsFilter: Ref<number[]>;
+  updateLevelFilter: (id: number, flag: boolean) => void;
+  updateLevelFilterAll: (ids: number[], flag: boolean) => void;
+}
 const emits = defineEmits(["update:modelValue"]);
 const props = withDefaults(defineProps<Props>(), {
   treeData: () => [],
@@ -91,24 +86,21 @@ const props = withDefaults(defineProps<Props>(), {
   noResultLabel: () => "No results found",
   maxHeight: () => "60vh",
 });
-
-const { levelsFilter, updateLevelFilterAll } = useGlobalStore();
-
-const inputRef = ref<HTMLInputElement>();
+const levelsFilter = ref<number[]>([]);
 const inputValue = ref<string>("");
 const selectedValue = ref<string>("");
-const isShowElements = ref<boolean>(false);
+const hasElements = ref<boolean>(false);
 const allFilter = ref<boolean>(true);
 const previousList = ref<number[]>([]);
-const tempData = computed<OrganisationStructureResource[]>(() => {
+const TreeElements = computed<OrganisationStructureResource[]>(() => {
   if (inputValue.value) {
     return filterByName(props.treeData, inputValue.value);
   }
   return props.treeData;
 });
-const isLoaded = computed<boolean>(() => tempData.value.length > 0);
+const isLoaded = computed<boolean>(() => TreeElements.value.length > 0);
 const includesId = computed<number[]>(() => {
-  return getAllIds(tempData.value);
+  return getAllIds(TreeElements.value);
 });
 const isIndeterminate = computed<boolean>(() => {
   const included = includesId.value.filter((el) =>
@@ -116,24 +108,31 @@ const isIndeterminate = computed<boolean>(() => {
   ).length;
   return included > 0 && included < includesId.value.length;
 });
+const currentIcon = computed(() => {
+  if (!props.isDisabled && inputValue.value) return CloseIcon;
+  if (hasElements.value) return SearchIcon;
+  return ChevronIcon;
+});
 
 const hideElements = (): void => {
   clearInput();
-  isShowElements.value = false;
+  hasElements.value = false;
 };
 const openInput = (): void => {
   if (!props.isDisabled) {
     previousList.value = [...levelsFilter.value];
-    isShowElements.value = true;
+    hasElements.value = true;
   }
 };
 const clearInput = (): void => {
-  inputValue.value = "";
-  selectedValue.value = "";
-  selectedLevels();
+  if (!props.isDisabled && inputValue.value) {
+    inputValue.value = "";
+    selectedValue.value = "";
+    selectedLevels();
+  }
 };
 const onClickOutside = (): void => {
-  if (isShowElements.value) {
+  if (hasElements.value) {
     hideElements();
   }
 };
@@ -170,48 +169,42 @@ const selectedLevels = (): void => {
   }
   selectedValue.value = names.join(", ");
 };
-const filterByName = (
-  resources: OrganisationStructureResource[],
-  input: string
-): OrganisationStructureResource[] => {
-  const inputLower = input.toLowerCase();
 
-  const filterResource = (
-    resource: OrganisationStructureResource
-  ): OrganisationStructureResource | null => {
-    let nameMatches =
-      resource.name?.toLowerCase().includes(inputLower) ?? false;
+const updateLevelFilter = (id: number, flag: boolean) => {
+  const updatedFilter = new Set(levelsFilter.value);
+  if (updatedFilter.has(id)) {
+    if (!flag) {
+      updatedFilter.delete(id);
+    }
+  } else {
+    if (flag) {
+      updatedFilter.add(id);
+    }
+  }
+  levelsFilter.value = Array.from(updatedFilter);
+};
 
-    if (resource.children) {
-      const filteredChildren = resource.children
-        .map(filterResource)
-        .filter(
-          (child): child is OrganisationStructureResource => child !== null
-        );
-      if (filteredChildren.length > 0) {
-        return {
-          ...resource,
-          children: filteredChildren,
-        };
+const updateLevelFilterAll = (ids: number[], flag: boolean) => {
+  const filterSet = new Set(levelsFilter.value);
+  ids.forEach((number) => {
+    if (filterSet.has(number)) {
+      if (!flag) {
+        filterSet.delete(number);
+      }
+    } else {
+      if (flag) {
+        filterSet.add(number);
       }
     }
-    if (nameMatches) {
-      return { ...resource };
-    }
-    return null;
-  };
-  return resources
-    .map(filterResource)
-    .filter(
-      (resource): resource is OrganisationStructureResource => resource !== null
-    );
+  });
+  levelsFilter.value = Array.from(filterSet);
 };
-watch(
-  () => inputRef.value,
-  () => {
-    if (inputRef.value && isShowElements) inputRef.value.focus();
-  }
-);
+
+provide("levelsfilter", {
+  levelsFilter,
+  updateLevelFilter,
+  updateLevelFilterAll,
+} as FilterContext);
 
 watch(
   () => levelsFilter.value,
@@ -222,96 +215,8 @@ watch(
 );
 
 watchEffect(() => {
-  allFilter.value =
-    includesId.value.filter((el) => levelsFilter.value.includes(el)).length > 0;
+  allFilter.value = includesId.value.some((el) =>
+    levelsFilter.value.includes(el)
+  );
 });
 </script>
-<style>
-:root {
-  --tree-checkbox-checked: #27ae60;
-  --tree-border: #ebeff5;
-  --tree-background: #fff;
-  --tree-disabled: #7e899a;
-  --tree-menu-shadow: 0px 0px 8px 0px rgba(45, 50, 57, 0.1);
-}
-.competency-tree__dropdown {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  padding: 0.5rem;
-  gap: 0.5rem;
-  position: relative;
-  font-size: 1rem;
-  background-color: var(--tree-background);
-  border-radius: 4px;
-  max-height: 2.5rem;
-  box-sizing: border-box;
-}
-
-.competency-tree__dropdown--disabled {
-  background-color: var(--tree-background);
-  border: 1px solid var(--tree-disabled);
-  color: var(--tree-disabled);
-  cursor: not-allowed;
-}
-
-.competency-tree__input {
-  width: 100%;
-  font-size: 1rem;
-  background-color: var(--tree-background);
-  cursor: pointer;
-  border: 0;
-  outline: none;
-}
-
-.competency-tree__input--disabled {
-  background-color: var(--tree-background);
-  color: var(--tree-disabled);
-  cursor: not-allowed;
-}
-
-.competency-tree__text {
-  text-align: left;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  cursor: pointer;
-  width: 100%;
-}
-
-.competency-tree__text--disabled {
-  cursor: not-allowed;
-}
-
-.competency-tree__icon {
-  min-width: 1.5rem;
-  cursor: pointer;
-}
-
-.competency-tree__icon--disabled {
-  cursor: not-allowed;
-}
-
-.competency-tree__menu {
-  position: absolute;
-  left: 0;
-  top: 2.5rem;
-  right: 0;
-  background-color: var(--tree-background);
-  margin-top: 0.25rem;
-  box-shadow: var(--tree-menu-shadow);
-  z-index: 300;
-  overflow-y: auto;
-  border-radius: 4px;
-  border: 1px solid var(--tree-background);
-  padding: 8px 0;
-}
-
-.competency-tree__menu-nodata {
-  text-align: left;
-  padding: 8px 16px;
-}
-.competency-tree__menu-checkbox-all {
-  padding: 8px 16px;
-}
-</style>
