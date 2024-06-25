@@ -10,6 +10,7 @@
       :selectedValue="selectedValue"
       :allLevelsPlaceholder="props.allLevelsPlaceholder"
       :searchInputPlaceholder="props.searchInputPlaceholder"
+      v-model="inputValue"
       @clearInput="clearInput"
     />
     <div
@@ -104,6 +105,7 @@ const clearInput = (): void => {
 };
 const onClickOutside = (): void => {
   if (hasElements.value) {
+    clearInput()
     hideElements();
   }
 };

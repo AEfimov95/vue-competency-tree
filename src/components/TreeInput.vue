@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import TheInput from "./TheInput.vue";
 import { SearchIcon, CloseIcon, ChevronIcon } from "./icons";
 
@@ -32,9 +32,10 @@ const props = defineProps<{
   selectedValue: string;
   allLevelsPlaceholder: string;
   searchInputPlaceholder: string;
+  modelValue: string;
 }>();
 
-const emits = defineEmits(["clearInput"]);
+const emits = defineEmits(["clearInput", "update:modelValue"]);
 
 const inputValue = ref("");
 
@@ -56,4 +57,13 @@ const clearInput = () => {
     emits("clearInput");
   }
 };
+watch(
+  () => {
+    inputValue.value;
+  },
+  () => {
+    emits("update:modelValue", inputValue.value);
+  },
+  { deep: true }
+);
 </script>

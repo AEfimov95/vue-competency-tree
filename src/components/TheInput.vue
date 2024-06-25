@@ -25,6 +25,7 @@ const onInput = (event: Event) => {
   emits("update:modelValue", target.value);
 };
 onMounted(() => {
+  emits("update:modelValue", '');
   inputRef.value?.focus();
 });
 </script>
