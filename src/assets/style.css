@@ -49,6 +49,7 @@
   }
   
   .competency-tree__icon {
+    display: flex;
     min-width: 1.5rem;
     cursor: pointer;
   }

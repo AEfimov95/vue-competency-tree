@@ -12,12 +12,13 @@
     :placeholder="searchInputPlaceholder || ''"
     v-model="inputValue"
   />
-  <Component
+  <div
     @click="clearInput"
-    :is="currentIcon"
     class="competency-tree__icon"
     :class="{ 'competency-tree__icon--disabled': disabled }"
-  />
+  >
+    <Component :is="currentIcon" />
+  </div>
 </template>
 
 <script setup lang="ts">
