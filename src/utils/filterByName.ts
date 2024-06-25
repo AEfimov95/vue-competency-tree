@@ -1,4 +1,4 @@
-import { OrganisationStructureResource } from "../utils";
+import type { OrganisationStructureResource } from "../types";
 
 export const filterByName = (
     resources: OrganisationStructureResource[],

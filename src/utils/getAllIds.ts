@@ -1,4 +1,4 @@
-import { OrganisationStructureResource } from "../utils/index";
+import type { OrganisationStructureResource } from "../types";
 
 export const getAllIds = (data: OrganisationStructureResource[]): number[] => {
   const ids: number[] = [];

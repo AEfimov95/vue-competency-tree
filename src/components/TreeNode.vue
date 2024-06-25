@@ -42,18 +42,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, watch, watchEffect } from "vue";
+import { computed, reactive, ref, watch, watchEffect, inject } from "vue";
 import { MiniChevronRightIcon } from "../components/icons";
 import TheCheckbox from "./TheCheckbox.vue";
-import { type OrganisationStructureResource, getAllIds } from "../utils";
-import { inject } from 'vue'
-import type {FilterContext } from "./CompetencyTree.vue";
+import { getAllIds } from "../utils";
+import type { OrganisationStructureResource, FilterContext } from "../types";
 const props = defineProps<{
   data: OrganisationStructureResource;
   inputSearch?: string;
 }>();
 
-const { levelsFilter, updateLevelFilter, updateLevelFilterAll } = inject<FilterContext>('levelsfilter')!
+const { levelsFilter, updateLevelFilter, updateLevelFilterAll } =
+  inject<FilterContext>("levelsfilter")!;
 const state = reactive<{
   data: OrganisationStructureResource;
   allFilter: boolean;
@@ -89,7 +89,7 @@ const isIndeterminate = computed<boolean>(() => {
     if (
       includesId.value.filter((el) => levelsFilter.value.includes(el)).length <
         includesId.value.length &&
-        includesId.value.some((el) => levelsFilter.value.includes(el))
+      includesId.value.some((el) => levelsFilter.value.includes(el))
     )
       return true;
   }
@@ -131,8 +131,9 @@ watch(
 );
 watchEffect(() => {
   if (props.data.children) {
-    state.allFilter =
-    includesId.value.some((el) => levelsFilter.value.includes(el));
+    state.allFilter = includesId.value.some((el) =>
+      levelsFilter.value.includes(el)
+    );
     if (props.inputSearch) {
       isShowOptions.value = openByInputSearch(props.data.children).some(
         (el) => el == true

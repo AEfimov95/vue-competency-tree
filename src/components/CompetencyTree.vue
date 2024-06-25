@@ -1,31 +1,16 @@
 <template>
-  <div
-    class="competency-tree__dropdown"
-    :class="{ 'competency-tree__dropdown--disabled': isDisabled }"
-    v-click-outside="onClickOutside"
-    @click="openInput"
+  <TreeWrapper
+    :isDisabled="isDisabled"
+    @clickOutside="onClickOutside"
+    @openInput="openInput"
   >
-    <div
-      v-if="!hasElements"
-      class="competency-tree__text"
-      :class="{ 'competency-tree__text--disabled': isDisabled }"
-    >
-      {{
-        selectedValue && !isDisabled
-          ? selectedValue
-          : props.allLevelsPlaceholder
-      }}
-    </div>
-    <TheInput
-      v-else
-      :disabled="isDisabled"
-      :placeholder="searchInputPlaceholder"
-      v-model="inputValue"
-    />
-    <Component
-      @click="clearInput"
-      :is="currentIcon"
-      :class="{ 'competency-tree__icon--disabled': isDisabled }"
+    <TreeInput
+      :isDisabled="isDisabled"
+      :hasElements="hasElements"
+      :selectedValue="selectedValue"
+      :allLevelsPlaceholder="props.allLevelsPlaceholder"
+      :searchInputPlaceholder="props.searchInputPlaceholder"
+      @clearInput="clearInput"
     />
     <div
       v-show="hasElements"
@@ -51,17 +36,20 @@
         {{ props.noResultLabel }}
       </div>
     </div>
-  </div>
+  </TreeWrapper>
 </template>
 
 <script setup lang="ts">
-import { computed, type Ref, ref, watch, watchEffect } from "vue";
+import { computed, watch, watchEffect, provide } from "vue";
+import TreeInput from "./TreeInput.vue";
+import TreeWrapper from "./TreeWrapper.vue";
 import TreeNode from "./TreeNode.vue";
 import TheCheckbox from "./TheCheckbox.vue";
+import { useTreeLogic } from "../composables/useTreeLogic";
 import { SearchIcon, CloseIcon, ChevronIcon } from "./icons";
-import { type OrganisationStructureResource, getAllIds, filterByName } from "../utils";
-import { provide } from "vue";
-import TheInput from "./TheInput.vue";
+import { getAllIds } from "../utils";
+import type { OrganisationStructureResource, FilterContext } from "../types";
+
 export interface Props {
   isDisabled?: boolean;
   treeData?: OrganisationStructureResource[];
@@ -72,11 +60,7 @@ export interface Props {
   maxHeight?: string;
   modelValue?: number[];
 }
-export interface FilterContext {
-  levelsFilter: Ref<number[]>;
-  updateLevelFilter: (id: number, flag: boolean) => void;
-  updateLevelFilterAll: (ids: number[], flag: boolean) => void;
-}
+
 const emits = defineEmits(["update:modelValue"]);
 const props = withDefaults(defineProps<Props>(), {
   treeData: () => [],
@@ -86,33 +70,22 @@ const props = withDefaults(defineProps<Props>(), {
   noResultLabel: () => "No results found",
   maxHeight: () => "60vh",
 });
-const levelsFilter = ref<number[]>([]);
-const inputValue = ref<string>("");
-const selectedValue = ref<string>("");
-const hasElements = ref<boolean>(false);
-const allFilter = ref<boolean>(true);
-const previousList = ref<number[]>([]);
-const TreeElements = computed<OrganisationStructureResource[]>(() => {
-  if (inputValue.value) {
-    return filterByName(props.treeData, inputValue.value);
-  }
-  return props.treeData;
-});
-const isLoaded = computed<boolean>(() => TreeElements.value.length > 0);
-const includesId = computed<number[]>(() => {
-  return getAllIds(TreeElements.value);
-});
-const isIndeterminate = computed<boolean>(() => {
-  const included = includesId.value.filter((el) =>
-    levelsFilter.value.includes(el)
-  ).length;
-  return included > 0 && included < includesId.value.length;
-});
-const currentIcon = computed(() => {
-  if (!props.isDisabled && inputValue.value) return CloseIcon;
-  if (hasElements.value) return SearchIcon;
-  return ChevronIcon;
-});
+
+const {
+  levelsFilter,
+  inputValue,
+  selectedValue,
+  hasElements,
+  allFilter,
+  TreeElements,
+  isLoaded,
+  includesId,
+  isIndeterminate,
+  selectedLevels,
+  updateLevelFilter,
+  updateLevelFilterAll,
+} = useTreeLogic(props.treeData, props.allLevelsPlaceholder);
+
 
 const hideElements = (): void => {
   clearInput();
@@ -120,7 +93,6 @@ const hideElements = (): void => {
 };
 const openInput = (): void => {
   if (!props.isDisabled) {
-    previousList.value = [...levelsFilter.value];
     hasElements.value = true;
   }
 };
@@ -158,46 +130,6 @@ const selectedLevelsSearch = (
       names.push(item.name!);
     }
   });
-};
-
-const selectedLevels = (): void => {
-  const names: string[] = [];
-  if (getAllIds(props.treeData).length === levelsFilter.value.length) {
-    names.push(props.allLevelsPlaceholder);
-  } else {
-    selectedLevelsSearch(props.treeData, names);
-  }
-  selectedValue.value = names.join(", ");
-};
-
-const updateLevelFilter = (id: number, flag: boolean) => {
-  const updatedFilter = new Set(levelsFilter.value);
-  if (updatedFilter.has(id)) {
-    if (!flag) {
-      updatedFilter.delete(id);
-    }
-  } else {
-    if (flag) {
-      updatedFilter.add(id);
-    }
-  }
-  levelsFilter.value = Array.from(updatedFilter);
-};
-
-const updateLevelFilterAll = (ids: number[], flag: boolean) => {
-  const filterSet = new Set(levelsFilter.value);
-  ids.forEach((number) => {
-    if (filterSet.has(number)) {
-      if (!flag) {
-        filterSet.delete(number);
-      }
-    } else {
-      if (flag) {
-        filterSet.add(number);
-      }
-    }
-  });
-  levelsFilter.value = Array.from(filterSet);
 };
 
 provide("levelsfilter", {
