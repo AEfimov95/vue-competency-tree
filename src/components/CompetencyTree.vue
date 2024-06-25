@@ -1,11 +1,11 @@
 <template>
   <TreeWrapper
-    :isDisabled="isDisabled"
+    :disabled="isDisabled"
     @clickOutside="onClickOutside"
     @openInput="openInput"
   >
     <TreeInput
-      :isDisabled="isDisabled"
+      :disabled="isDisabled"
       :hasElements="hasElements"
       :selectedValue="selectedValue"
       :allLevelsPlaceholder="props.allLevelsPlaceholder"
@@ -40,13 +40,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, watchEffect, provide } from "vue";
+import { watch, watchEffect, provide } from "vue";
 import TreeInput from "./TreeInput.vue";
 import TreeWrapper from "./TreeWrapper.vue";
 import TreeNode from "./TreeNode.vue";
 import TheCheckbox from "./TheCheckbox.vue";
 import { useTreeLogic } from "../composables/useTreeLogic";
-import { SearchIcon, CloseIcon, ChevronIcon } from "./icons";
 import { getAllIds } from "../utils";
 import type { OrganisationStructureResource, FilterContext } from "../types";
 

@@ -2,20 +2,20 @@
   <div
     v-if="!hasElements"
     class="competency-tree__text"
-    :class="{ 'competency-tree__text--disabled': isDisabled }"
+    :class="{ 'competency-tree__text--disabled': disabled }"
   >
     {{ displayText }}
   </div>
   <TheInput
     v-else
-    :disabled="isDisabled"
+    :disabled="disabled"
     :placeholder="searchInputPlaceholder || ''"
     v-model="inputValue"
   />
   <Component
     @click="clearInput"
     :is="currentIcon"
-    :class="{ 'competency-tree__icon--disabled': isDisabled }"
+    :class="{ 'competency-tree__icon--disabled': disabled }"
   />
 </template>
 
@@ -24,32 +24,32 @@ import { computed, ref } from "vue";
 import TheInput from "./TheInput.vue";
 import { SearchIcon, CloseIcon, ChevronIcon } from "./icons";
 
-const props = defineProps({
-  isDisabled: Boolean,
-  hasElements: Boolean,
-  selectedValue: String,
-  allLevelsPlaceholder: String,
-  searchInputPlaceholder: String,
-});
+const props = defineProps<{
+  disabled?: boolean;
+  hasElements: boolean;
+  selectedValue: string;
+  allLevelsPlaceholder: string;
+  searchInputPlaceholder: string;
+}>();
 
 const emits = defineEmits(["clearInput"]);
 
 const inputValue = ref("");
 
 const displayText = computed(() => {
-  return props.selectedValue && !props.isDisabled
+  return props.selectedValue && !props.disabled
     ? props.selectedValue
     : props.allLevelsPlaceholder;
 });
 
 const currentIcon = computed(() => {
-  if (!props.isDisabled && inputValue.value) return CloseIcon;
+  if (!props.disabled && inputValue.value) return CloseIcon;
   if (props.hasElements) return SearchIcon;
   return ChevronIcon;
 });
 
 const clearInput = () => {
-  if (!props.isDisabled && inputValue.value) {
+  if (!props.disabled && inputValue.value) {
     inputValue.value = "";
     emits("clearInput");
   }

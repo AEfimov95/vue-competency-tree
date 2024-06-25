@@ -1,7 +1,7 @@
 <template>
     <div
       class="competency-tree__dropdown"
-      :class="{ 'competency-tree__dropdown--disabled': isDisabled }"
+      :class="{ 'competency-tree__dropdown--disabled': disabled }"
       v-click-outside="onClickOutside"
       @click="openInput"
     >
@@ -11,9 +11,7 @@
   
   <script setup lang="ts">
   
-  const props = defineProps({
-    isDisabled: Boolean
-  });
+  const props = defineProps<{disabled?: boolean}>();
   
   const emits = defineEmits(['clickOutside', 'openInput']);
   
@@ -22,7 +20,7 @@
   };
   
   const openInput = () => {
-    if (!props.isDisabled) {
+    if (!props.disabled) {
       emits('openInput');
     }
   };
