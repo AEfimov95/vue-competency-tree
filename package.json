@@ -1,6 +1,6 @@
 {
   "name": "vue-competency-tree",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "private": false,
   "description": "A Vue 3 component for displaying a competency tree with nested checkboxes and search functionality.",
   "main": "./dist/vue-competency-tree.umd.cjs",

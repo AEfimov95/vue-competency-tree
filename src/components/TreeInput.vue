@@ -15,6 +15,7 @@
   <Component
     @click="clearInput"
     :is="currentIcon"
+    class="competency-tree__icon"
     :class="{ 'competency-tree__icon--disabled': disabled }"
   />
 </template>
